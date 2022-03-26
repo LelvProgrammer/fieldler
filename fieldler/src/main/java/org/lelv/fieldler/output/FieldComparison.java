@@ -15,13 +15,13 @@ import java.util.stream.Stream;
 /**
  * Class that provides ways of comparing the fields of objects in a clean way.
  *
- * The comparison of each field is done only once, and at the moment of requesting a method which in part
+ * <p>The comparison of each field is done only once, and at the moment of requesting a method which in part
  * requires the comparison to be executed.
  *
- * Important: the logic works under the premise that either the objects being compared are immutable, or that at the times of
+ * <p>Important: the logic works under the premise that either the objects being compared are immutable, or that at the times of
  * calling different methods, the objects have not been altered. Internally they are stored in a final manner, but their fields may not be.
- * Therefore, it is the responsibility of the user to make sure that at the moment of calling certain methods that the state of the objects hasn't
- * been modified in the middle. For example, if a FieldComparison is created for two cars, one red and one blue, and if the method
+ * Therefore, it is the responsibility of the programmer to make sure that at the moment of calling certain methods that the state of the objects hasn't
+ * been modified in the middle. For example, if a FieldComparison is created for two cars, one red and one blue, and the method
  * {@code isDifferent(COLOR)} is called, then it will return true. But if the blue car is then updated to have a red color and the method is
  * called yet again, it will still return true, as the comparison of said field has already been done and stored. If there is a change, then the
  * recommendation would be to create a new FieldComparison out of the modified object, or calling the method {@code clearTests()}
@@ -37,6 +37,12 @@ public final class FieldComparison<T, U> {
   private final Map<U, BiPredicate<T, T>> equalityTests;
   private final Map<U, Boolean> equalityResults = new HashMap<>();
 
+  /** Builds a FieldComparison, which presents methods for comparing the fields of the two objects, given the equality
+   * tests provided. It is used by the auto generated FieldComparator, and is not meant for usage by other means.
+   * @param objectA the first object to compare
+   * @param objectB the second object to compare
+   * @param equalityTests a map which contains a test that can assert equality or difference of the field, for every accessible field of the objects
+   */
   public FieldComparison(T objectA, T objectB, Map<U, BiPredicate<T, T>> equalityTests) {
     this.objectA = Objects.requireNonNull(objectA);
     this.objectB = Objects.requireNonNull(objectB);
@@ -183,7 +189,7 @@ public final class FieldComparison<T, U> {
   }
 
   /**
-   * Informs whether any of the fields is different between the two objects
+   * Informs whether any one of the fields is different between the two objects
    *
    * @param fields fields to consider
    * @return true if at least one of the provided fields is different, false otherwise.
@@ -300,7 +306,7 @@ public final class FieldComparison<T, U> {
   }
 
   /**
-   * Executes a function if at least one of the fields is different between the two objects. If the set is empty, then
+   * Executes a function if at least one of the fields is equal between the two objects. If the set is empty, then
    * it executes if there exists one field which is equal.
    *
    * @param fields       fields to assess
@@ -391,7 +397,7 @@ public final class FieldComparison<T, U> {
 
 
   /**
-   * Executes a function if at least one of the fields is different between the two objects.
+   * Executes a function if at least one of the fields is equal between the two objects.
    *
    * @param objectsConsumer consumer of the compared objects
    * @return self - helpful for chaining with other do* methods
@@ -404,7 +410,7 @@ public final class FieldComparison<T, U> {
   }
 
   /**
-   * Executes a function if at least one of the fields is different between the two objects. If the set is empty, then
+   * Executes a function if at least one of the fields is equal between the two objects. If the set is empty, then
    * it executes if there exists one field which is equal.
    *
    * @param fields       fields to assess

@@ -1,4 +1,4 @@
-package org.lelv.fieldlertest;
+package org.lelv.fieldlertest.util;
 
 public class SampleRunnable implements Runnable {
 

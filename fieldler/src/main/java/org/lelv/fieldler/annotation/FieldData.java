@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for flagging the class for generating a FieldData enum.
+ * Annotation that flags a class for generating a FieldData enum
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)

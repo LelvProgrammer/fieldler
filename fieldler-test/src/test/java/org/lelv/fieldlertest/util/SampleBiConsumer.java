@@ -1,4 +1,6 @@
-package org.lelv.fieldlertest;
+package org.lelv.fieldlertest.util;
+
+import org.lelv.fieldlertest.Person;
 
 import java.util.function.BiConsumer;
 

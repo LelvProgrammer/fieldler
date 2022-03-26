@@ -78,7 +78,7 @@ public class FieldlerAnnotationProcessor extends AbstractProcessor {
         default:
           throw new IllegalArgumentException("Unknown generator " + generator);
       }
-      printInfo(String.format("[Fieldler] Generated %s for class %s on package %s", response, classData.getClassName(), classData.getPackagePath()));
+      printInfo(String.format("[Fieldler] Generated %s for class %s", response, classData.getCanonicalName()));
     } catch (FieldlerGenerationException e) {
       printWarning("[Fielder] Error generating classes - Detail: " + e.getMessage());
     }

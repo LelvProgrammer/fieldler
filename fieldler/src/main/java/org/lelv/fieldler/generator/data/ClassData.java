@@ -33,10 +33,6 @@ public class ClassData {
     return canonicalName;
   }
 
-  public String getNeighborPath(String neighborClassName) {
-    return String.format("%s.%s", packagePath, neighborClassName);
-  }
-
   public boolean hasAccessibleFields() {
     return fieldsData != null && fieldsData.stream().anyMatch(FieldData::isAccessible);
   }

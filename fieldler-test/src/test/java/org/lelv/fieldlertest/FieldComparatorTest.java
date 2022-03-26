@@ -1,44 +1,29 @@
 package org.lelv.fieldlertest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.lelv.fieldlertest.PersonField.AGE;
-import static org.lelv.fieldlertest.PersonField.ALIVE;
-import static org.lelv.fieldlertest.PersonField.LAST_NAME;
-import static org.lelv.fieldlertest.PersonField.NAME;
-import static org.lelv.fieldlertest.PersonField.REQUIRES_OXYGEN;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.lelv.fieldler.output.FieldComparison;
+import org.lelv.fieldlertest.util.SampleBiConsumer;
+import org.lelv.fieldlertest.util.SampleException;
+import org.lelv.fieldlertest.util.SampleRunnable;
 
-import java.util.Arrays;
-import java.util.List;
+import static org.assertj.core.api.Assertions.*;
+import static org.lelv.fieldlertest.util.PersonTestUtil.*;
 
 public class FieldComparatorTest {
 
-  private static final List<PersonField> DEFAULT_EQUAL_ATTRIBUTES = Arrays.asList(NAME, AGE, ALIVE);
-  private static final List<PersonField> DEFAULT_DIFFERENT_ATTRIBUTES = Arrays.asList(LAST_NAME, REQUIRES_OXYGEN);
-  private static final List<PersonField> DEFAULT_EQUAL_ATTRIBUTES_EXCEPT_ONE = Arrays.asList(NAME, AGE, LAST_NAME, ALIVE);
-  private static final List<PersonField> DEFAULT_DIFFERENT_ATTRIBUTES_EXCEPT_ONE = Arrays.asList(LAST_NAME, AGE, REQUIRES_OXYGEN);
-
-  private Person personA = new Person();
-  private Person personB = new Person();
   private FieldComparison<Person, PersonField> comparison;
 
   @BeforeEach
   public void beforeEach() {
-    personA = new Person();
-    personB = new Person();
     defaultAttributes();
-    comparison = PersonFieldComparator.compare(personA, personB);
+    comparison = PersonFieldComparator.compare(PERSON_A, PERSON_B);
   }
 
   @Test
   public void testGetObjects() {
-    assertThat(comparison.getObjectA()).isEqualTo(personA);
-    assertThat(comparison.getObjectB()).isEqualTo(personB);
+    assertThat(comparison.getObjectA()).isEqualTo(PERSON_A);
+    assertThat(comparison.getObjectB()).isEqualTo(PERSON_B);
   }
 
   @Test
@@ -235,82 +220,6 @@ public class FieldComparatorTest {
     assertThatCode(() -> comparison.throwWhenAllDifferent(SampleException::new)).doesNotThrowAnyException();
     assertThatCode(() -> comparison.throwWhenAllDifferent(DEFAULT_DIFFERENT_ATTRIBUTES_EXCEPT_ONE, SampleException::new)).doesNotThrowAnyException();
     assertThatThrownBy(() -> comparison.throwWhenAllDifferent(DEFAULT_DIFFERENT_ATTRIBUTES, SampleException::new)).isInstanceOf(SampleException.class);
-  }
-
-  // Util methods
-
-  private void allEqualAttributes() {
-    sameAge();
-    sameName();
-    sameAlive();
-    sameLastName();
-    sameRequiresOxygen();
-  }
-
-  private void allDifferentAttributes() {
-    differentAge();
-    differentName();
-    differentAlive();
-    differentLastName();
-    differentRequiresOxygen();
-  }
-
-  private void defaultAttributes() {
-    sameAge();
-    sameName();
-    sameAlive();
-    differentLastName();
-    differentRequiresOxygen();
-  }
-
-  private void sameName() {
-    personA.setName("John");
-    personB.setName("John");
-  }
-
-  private void sameAge() {
-    personA.setAge(12);
-    personB.setAge(12);
-  }
-
-  private void differentName() {
-    personA.setName("John");
-    personB.setName("Maria");
-  }
-
-  private void differentAge() {
-    personA.setAge(12);
-    personB.setAge(34);
-  }
-
-  private void sameLastName() {
-    personA.setLastName("Williams");
-    personB.setLastName("Williams");
-  }
-
-  private void differentLastName() {
-    personA.setLastName("Williams");
-    personB.setLastName("Johnson");
-  }
-
-  private void sameAlive() {
-    personA.setAlive(true);
-    personB.setAlive(true);
-  }
-
-  private void differentAlive() {
-    personA.setAlive(true);
-    personB.setAlive(false);
-  }
-
-  private void sameRequiresOxygen() {
-    personA.setRequiresOxygen(true);
-    personB.setRequiresOxygen(true);
-  }
-
-  private void differentRequiresOxygen() {
-    personA.setRequiresOxygen(true);
-    personB.setRequiresOxygen(false);
   }
 
 }

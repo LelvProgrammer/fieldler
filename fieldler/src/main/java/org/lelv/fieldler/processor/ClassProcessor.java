@@ -11,6 +11,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -53,24 +54,21 @@ class ClassProcessor {
   }
 
   private static Element getSuperClass(Element element) {
-    if (!(element instanceof TypeElement)) {
-      return null;
-    }
-    TypeElement typeElement = (TypeElement) element;
-    if (!(typeElement.getSuperclass() instanceof DeclaredType)) {
-      return null;
-    }
-    Element parentElement = ((DeclaredType) typeElement.getSuperclass()).asElement();
-    if (OBJECT.equals(parentElement.toString())) {
-      return null;
-    }
-    return parentElement;
+    return Optional.of(element)
+                   .filter(TypeElement.class::isInstance)
+                   .map(TypeElement.class::cast)
+                   .map(TypeElement::getSuperclass)
+                   .filter(DeclaredType.class::isInstance)
+                   .map(DeclaredType.class::cast)
+                   .map(DeclaredType::asElement)
+                   .filter(parentElement -> !OBJECT.equals(parentElement.toString()))
+                   .orElse(null);
   }
 
   private static Set<String> getPublicAndNoParameterMethodNames(List<ExecutableElement> methodElements) {
     return methodElements.stream()
                          .filter(method -> method.getModifiers().contains(Modifier.PUBLIC))
-                         .filter(method -> method.getParameters().size() == 0)
+                         .filter(method -> method.getParameters().isEmpty())
                          .map(ExecutableElement::getSimpleName)
                          .map(Object::toString)
                          .collect(Collectors.toSet());

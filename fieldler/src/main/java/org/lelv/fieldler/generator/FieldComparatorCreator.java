@@ -1,5 +1,6 @@
 package org.lelv.fieldler.generator;
 
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -21,10 +22,9 @@ public class FieldComparatorCreator {
   private static final ClassName BI_PREDICATE_CLASS_NAME = ClassName.get("java.util.function", "BiPredicate");
   private static final ClassName FIELD_COMPARISON_CLASS_NAME = ClassName.get("org.lelv.fieldler.output", "FieldComparison");
 
-  private final ClassData classData;
-
   private final String objectAName;
   private final String objectBName;
+  private final ClassData classData;
   private final ClassName fieldDataEnumClassName;
   private final ClassName sourceClassClassName;
   private final ParameterizedTypeName mapOfFieldDataAndBiPredicateTypeName;
@@ -33,8 +33,9 @@ public class FieldComparatorCreator {
     this.classData = classData;
     this.sourceClassClassName = ClassName.bestGuess(classData.getCanonicalName());
     this.fieldDataEnumClassName = ClassName.bestGuess(classData.getPackagePath() + "." + fieldEnumName);
-    this.objectAName = Character.toLowerCase(classData.getClassName().charAt(0)) + classData.getClassName().substring(1) + "A";
-    this.objectBName = Character.toLowerCase(classData.getClassName().charAt(0)) + classData.getClassName().substring(1) + "B";
+    String variableName = Character.toLowerCase(classData.getClassName().charAt(0)) + classData.getClassName().substring(1);
+    this.objectAName = variableName + "A";
+    this.objectBName = variableName + "B";
     ParameterizedTypeName biPredicateTypeName = ParameterizedTypeName.get(BI_PREDICATE_CLASS_NAME, sourceClassClassName, sourceClassClassName);
     this.mapOfFieldDataAndBiPredicateTypeName = ParameterizedTypeName.get(MAP_CLASS_NAME, fieldDataEnumClassName, biPredicateTypeName);
   }
@@ -55,13 +56,7 @@ public class FieldComparatorCreator {
   private MethodSpec createCompareMethod() {
     ParameterizedTypeName fieldComparisonType = ParameterizedTypeName.get(FIELD_COMPARISON_CLASS_NAME, sourceClassClassName, fieldDataEnumClassName);
     MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(COMPARE_METHOD)
-                                                 .addJavadoc("Compares two objects returning a FieldComparison\n")
-                                                 .addJavadoc("@param " + objectAName + " the first object to compare\n")
-                                                 .addJavadoc("@param " + objectBName + " the second object to compare\n")
-                                                 .addJavadoc(String.format("@throws NullPointerException if {@code %s} or {@code %s} is {@code null}\n",
-                                                                           objectAName, objectBName))
-                                                 .addJavadoc("@see org.lelv.fieldler.output.FieldComparison\n")
-                                                 .addJavadoc("@return FieldComparison")
+                                                 .addJavadoc(buildJavadoc())
                                                  .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                                                  .returns(fieldComparisonType)
                                                  .addParameter(sourceClassClassName, objectAName)
@@ -70,6 +65,17 @@ public class FieldComparatorCreator {
     methodBuilder.addStatement("$T.requireNonNull($L)", Objects.class, objectBName);
     methodBuilder.addStatement("return new $T<>($L, $L, $L())", FIELD_COMPARISON_CLASS_NAME, objectAName, objectBName, EQUALITY_TESTS_METHOD);
     return methodBuilder.build();
+  }
+
+  private CodeBlock buildJavadoc() {
+      return CodeBlock.builder()
+                      .add("Compares two objects returning a FieldComparison\n")
+                      .add("@param " + objectAName + " the first object to compare\n")
+                      .add("@param " + objectBName + " the second object to compare\n")
+                      .add(String.format("@throws NullPointerException if {@code %s} or {@code %s} is {@code null}\n", objectAName, objectBName))
+                      .add("@see org.lelv.fieldler.output.FieldComparison\n")
+                      .add("@return FieldComparison")
+                      .build();
   }
 
   private MethodSpec createEqualityTestsMethod() {
@@ -88,7 +94,7 @@ public class FieldComparatorCreator {
     }
     methodBuilder.addStatement("$L.put($T, ($L, $L) -> $T.equals($L, $L))",
                                EQUALITY_TESTS_VARIABLE,
-                               fieldDataEnumClassName.nestedClass(fieldData.getSnakeCaseName()),
+                               fieldDataEnumClassName.nestedClass(fieldData.getEnumName()),
                                objectAName, objectBName,
                                java.util.Objects.class,
                                String.format("%s.%s", objectAName, fieldData.getAccess()),

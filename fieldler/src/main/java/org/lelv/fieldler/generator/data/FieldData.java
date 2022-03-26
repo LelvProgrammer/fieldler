@@ -6,12 +6,12 @@ public class FieldData {
 
   private final String name;
   private final String access;
-  private final String snakeCaseName;
+  private final String enumName;
 
   public FieldData(String name, String access) {
     this.name = name;
     this.access = access;
-    this.snakeCaseName = SnakeCaseUtil.snakeCase(name);
+    this.enumName = SnakeCaseUtil.snakeCase(name);
   }
 
   public String getName() {
@@ -22,8 +22,8 @@ public class FieldData {
     return access;
   }
 
-  public String getSnakeCaseName() {
-    return snakeCaseName;
+  public String getEnumName() {
+    return enumName;
   }
 
   public boolean isAccessible() {
